@@ -28,7 +28,7 @@ import java.util.stream.*;
 public class ProductReviewAnalyzer {
 
     //TODO - uncomment this field and initialize it in the constructor to store categories.
-    //private final List<String> categories;
+    private final List<String> categories;
 
     /**
      * Store the category tags that this analyzer will examine.
@@ -37,6 +37,10 @@ public class ProductReviewAnalyzer {
      */
     public ProductReviewAnalyzer(List<String> categories) {
       //TODO - implement this constructor
+        if(categories == null){
+            throw new IllegalArgumentException();
+        }
+        this.categories= List.copyOf(categories);
     }
 
     /**
@@ -45,9 +49,9 @@ public class ProductReviewAnalyzer {
      *
      * @return sorted frequency map
      */
-    public Map<String, Long> buildCategoryFrequencyMap() {
+    public TreeMap<String, Long> buildCategoryFrequencyMap() {
         //TODO - implement this method
-        return null;
+        return categories.stream().collect(Collectors.groupingBy(cat->cat, TreeMap::new, Collectors.counting()));
     }
 
     /**
@@ -58,8 +62,8 @@ public class ProductReviewAnalyzer {
      */
     public List<String> getTopNCategories(int n) {
         //TODO - implement this method
-        return null;
-    }
+        return buildCategoryFrequencyMap().entrySet().stream().sorted(Map.Entry.<String, Long>comparingByValue().reversed()).limit(n).map(Map.Entry::getKey).toList();
+        }
 
     /**
      * Returns all categories whose first letter equals the given prefix letter,
@@ -69,7 +73,7 @@ public class ProductReviewAnalyzer {
      */
     public List<String> getCategoriesStartingWith(char prefix) {
         //TODO - implement this method
-        return null;
+        return buildCategoryFrequencyMap().keySet().stream().filter(cat->cat.charAt(0)==prefix).toList();
     }
 
     /**
@@ -81,6 +85,10 @@ public class ProductReviewAnalyzer {
      */
     public Optional<String> getMostReviewedInRange(String from, String to) {
         //TODO - implement this method
-        return Optional.empty();
+        //if use stream it will be optional automatically
+        NavigableMap<String, Long> myMap =  buildCategoryFrequencyMap();
+        return myMap.subMap(from, true, to, true)
+                .entrySet().stream().findFirst().map(Map.Entry::getKey);
+
     }
-}
+    }
